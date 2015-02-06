@@ -16,6 +16,7 @@ var when        = require('when');
  *   - cacheDir: {String} where the git repo will be located. (default to a temporary folder)
  *   - push: {Boolean} to know whether or not the branch should be pushed (default to `true`)
  *   - message: {String} commit message (default to `"Update [timestamp]"`)
+ *   - env: The {String} folder where to deploy the codes
  *
  * Returns `Stream`.
 **/
@@ -27,6 +28,7 @@ module.exports = function (options) {
 	var cacheDir = options.cacheDir;
 	var push = options.push === undefined ? true : options.push;
 	var message = options.message || 'Update ' + new Date().toISOString();
+	var env = options.env;
 
 	var filePaths = [];
 	var TAG = '[gulp-' + branch + ']: ';
@@ -88,6 +90,7 @@ module.exports = function (options) {
 		})
 		.then(function (repo) {
 			// remove all files to stage deleted files
+			if (env) { return repo; }
 			return repo.removeFiles('.', {r: true});
 		})
 		.then(function (repo) {
@@ -100,7 +103,7 @@ module.exports = function (options) {
 			});
 
 			srcStream
-			.pipe(gulp.dest(repo._repo.path))
+			.pipe(gulp.dest(env ? repo._repo.path + '/' + env : repo._repo.path))
 			.on('end', function () {
 				deferred.resolve(repo);
 			})
@@ -127,7 +130,7 @@ module.exports = function (options) {
 				return repo;
 			} else {
 				gutil.log(TAG + 'Adding ' + filesToBeCommitted + ' files.');
-				gutil.log(TAG + 'Committing "' + message + '"');
+				gutil.log(TAG + 'Commiting "' + message + '"');
 				return repo.commit(message)
 				.then(function (repo) {
 					if (push) {

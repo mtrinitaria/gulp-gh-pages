@@ -91,6 +91,12 @@ Default: `"Update [timestamp]"`
 
 Commit message.
 
+#### options.env
+
+Type: `String`
+
+The folder where to deploy the codes.
+
 ## License
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
